@@ -1,0 +1,29 @@
+---
+- name: Change systemd-journald to keep logs in RAM (volatile)
+  community.general.ini_file:
+    path: /etc/systemd/journald.conf
+    section: Journal
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: "0644"
+    owner: root
+    group: root
+  loop:
+    - { option: "Storage", value: "volatile" }
+    - { option: "RuntimeMaxUse", value: "128M" }
+  notify: Restart systemd-journald
+
+- name: Stop and disable rsyslog
+  ansible.builtin.service:
+    name: rsyslog
+    state: stopped
+    enabled: false
+  register: homelab_rsyslog_result
+  failed_when:
+    - homelab_rsyslog_result.failed
+    - "'Could not find the requested service' not in rsyslog_result.msg"
+
+- name: Clear old logs from disks
+  ansible.builtin.file:
+    path: /var/log/journal/
+    state: absent

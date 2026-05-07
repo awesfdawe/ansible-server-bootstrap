@@ -1,0 +1,10 @@
+---
+base_packages_os_packages:
+  - curl
+  - wget
+  - micro
+  - htop
+  - git
+  - ufw
+  - sudo
+  - unzip

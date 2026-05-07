@@ -1,0 +1,27 @@
+#!/bin/bash
+
+APP_TOKEN="{{ pushover_app_token }}"
+USER_KEY="{{ pushover_user_key }}"
+HOSTNAME=$(hostname)
+REBOOT_NEEDED=0
+
+# Debian
+if [ -f /var/run/reboot-required ]; then
+    REBOOT_NEEDED=1
+fi
+
+# RedHat
+if command -v dnf &> /dev/null; then
+    if ! dnf needs-restarting -r &> /dev/null; then
+        REBOOT_NEEDED=1
+    fi
+fi
+
+if [ "$REBOOT_NEEDED" -eq 1 ]; then
+    curl -s \
+      --form-string "token=${APP_TOKEN}" \
+      --form-string "user=${USER_KEY}" \
+      --form-string "title=Reboot Required" \
+      --form-string "message=${HOSTNAME} needs to be restarted after security updates are installed." \
+      https://api.pushover.net/1/messages.json > /dev/null
+fi

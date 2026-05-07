@@ -1,0 +1,55 @@
+---
+- name: Base bootstrap for servers
+  hosts: all
+  become: true
+  vars_files:
+    - vars/hardening.yaml
+
+  tasks:
+    - name: Install base packages
+      ansible.builtin.include_role:
+        name: base_packages
+
+    - name: Setup firewalld
+      ansible.builtin.include_role:
+        name: firewall
+
+    - name: Autoupdates setup (Security only)
+      ansible.builtin.include_role:
+        name: autoupdates
+
+    - name: Apply pushover additions
+      ansible.builtin.include_role:
+        name: pushover
+
+    - name: Apply devsec os hardening
+      ansible.builtin.include_role:
+        name: devsec.hardening.os_hardening
+      vars:
+        sysctl_overwrite:
+          net.ipv4.ip_forward: 1
+        os_auditd_enabled: false
+        os_user_pw_ageing: false
+        os_auth_pw_max_age: 99999
+        os_auth_pw_min_age: 0
+
+    - name: Apply devsec ssh hardening
+      ansible.builtin.include_role:
+        name: devsec.hardening.ssh_hardening
+
+    - name: Setup Fail2Ban (only if ssh password authentication enabled)
+      ansible.builtin.include_role:
+        name: fail2ban
+      when: enable_ssh_password | default(false) | bool
+
+- name: Homelab specific actions
+  hosts: homelab
+  become: true
+  roles:
+    - homelab
+
+- name: VPS specific actions
+  hosts: vps
+  become: true
+  roles:
+    - vps

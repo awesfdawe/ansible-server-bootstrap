@@ -1,0 +1,19 @@
+---
+- name: Install firewalld
+  ansible.builtin.package:
+    name: firewalld
+    state: present
+
+- name: Start and enable firewalld service
+  ansible.builtin.service:
+    name: firewalld
+    state: started
+    enabled: true
+
+- name: Enable masquerading for public zone
+  ansible.posix.firewalld:
+    zone: public
+    masquerade: true
+    state: enabled
+    permanent: true
+    immediate: true

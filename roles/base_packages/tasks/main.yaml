@@ -1,0 +1,17 @@
+---
+- name: Load list of base packages for specific os
+  ansible.builtin.include_vars: "{{ ansible_facts['os_family'] }}.yaml"
+
+- name: Install packages (Debian)
+  ansible.builtin.apt:
+    name: "{{ base_packages_os_packages }}"
+    state: present
+    update_cache: true
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Install packages (RedHat)
+  ansible.builtin.dnf:
+    name: "{{ base_packages_os_packages }}"
+    state: present
+    update_cache: true
+  when: ansible_facts['os_family'] == 'RedHat'

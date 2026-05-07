@@ -1,0 +1,3 @@
+---
+ssh_server_password_login: "{{ enable_ssh_password | default(false) | bool }}"
+sshd_authenticationmethods: "{{ 'publickey password' if (enable_ssh_password | default(false) | bool) else 'publickey' }}"

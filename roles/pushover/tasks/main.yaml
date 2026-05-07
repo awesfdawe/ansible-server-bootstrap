@@ -1,0 +1,37 @@
+---
+- name: Find systemd service for autoupdates (Debian)
+  ansible.builtin.set_fact:
+    pushover_update_service_name: "apt-daily-upgrade.service"
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Find systemd service for autoupdates (RedHat)
+  ansible.builtin.set_fact:
+    pushover_update_service_name: "dnf-automatic.service"
+  when: ansible_facts['os_family'] == 'RedHat'
+
+- name: Deploy check reboot script 
+  ansible.builtin.template:
+    src: check_reboot.sh.j2
+    dest: /usr/local/bin/check_reboot.sh
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Создание директории systemd override
+  ansible.builtin.file:
+    path: "/etc/systemd/system/{{ pushover_update_service_name }}.d"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Add ExecStartPost hook to send notifications
+  ansible.builtin.copy:
+    dest: "/etc/systemd/system/{{ pushover_update_service_name }}.d/pushover_override.conf"
+    content: |
+      [Service]
+      ExecStartPost=-/usr/local/bin/check_reboot.sh
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload systemd daemon

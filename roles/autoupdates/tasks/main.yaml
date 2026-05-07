@@ -1,0 +1,48 @@
+---
+- name: Install unattended-upgrades (Debian)
+  ansible.builtin.apt:
+    name: unattended-upgrades
+    state: present
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Enable unattended-upgrades service (Debian)
+  ansible.builtin.service:
+    name: unattended-upgrades
+    state: started
+    enabled: true
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Install dnf-automatic (RedHat)
+  ansible.builtin.dnf:
+    name: dnf-automatic
+    state: present
+  when: ansible_facts['os_family'] == 'RedHat'
+
+- name: Setup dnf-automatic to install security-only updates (RedHat)
+  community.general.ini_file:
+    path: /etc/dnf/automatic.conf
+    section: commands
+    option: upgrade_type
+    value: security
+    mode: "0644"
+    owner: root
+    group: root
+  when: ansible_facts['os_family'] == 'RedHat'
+
+- name: Enable auto updates (RedHat)
+  community.general.ini_file:
+    path: /etc/dnf/automatic.conf
+    section: commands
+    option: apply_updates
+    value: "yes"
+    mode: "0644"
+    owner: root
+    group: root
+  when: ansible_facts['os_family'] == 'RedHat'
+
+- name: Enable dnf-automatic timer  (RedHat)
+  ansible.builtin.service:
+    name: dnf-automatic.timer
+    state: started
+    enabled: true
+  when: ansible_facts['os_family'] == 'RedHat'
