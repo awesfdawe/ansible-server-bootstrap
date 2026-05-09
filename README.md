@@ -1,6 +1,6 @@
 # ansible-server-bootstrap
 
-An Ansible playbook for quickly deploying my servers.
+An Ansible playbook for quickly bootstrapping my servers.
 
 ## What it does:
 
