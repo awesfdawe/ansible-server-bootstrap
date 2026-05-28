@@ -5,6 +5,5 @@ base_packages_os_packages:
   - micro
   - htop
   - git
-  - ufw
   - sudo
   - unzip

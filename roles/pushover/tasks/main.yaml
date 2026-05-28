@@ -9,7 +9,7 @@
     pushover_update_service_name: "dnf-automatic.service"
   when: ansible_facts['os_family'] == 'RedHat'
 
-- name: Deploy check reboot script 
+- name: Deploy check reboot script
   ansible.builtin.template:
     src: check_reboot.sh.j2
     dest: /usr/local/bin/check_reboot.sh

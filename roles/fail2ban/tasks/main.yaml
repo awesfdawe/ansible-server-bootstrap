@@ -10,7 +10,7 @@
     content: |
       [sshd]
       enabled = true
-      port = ssh
+      port = {{ ansible_port | default(22) }}
       logpath = ssh
       backend = systemd
       maxretry = 10

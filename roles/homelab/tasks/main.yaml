@@ -21,7 +21,7 @@
   register: homelab_rsyslog_result
   failed_when:
     - homelab_rsyslog_result.failed
-    - "'Could not find the requested service' not in rsyslog_result.msg"
+    - "'Could not find the requested service' not in homelab_rsyslog_result.msg"
 
 - name: Clear old logs from disks
   ansible.builtin.file:
