@@ -14,7 +14,7 @@ An Ansible playbook for quickly bootstrapping my servers.
 
 5. Apply dev-sec os and ssh hardening.
 
-6. Installs fail2ban on ssh if password authentication is enabled.
+6. Installs and configures CrowdSec with nftables firewall bouncer.
 
 7. And adds a couple of additions depending on the server's role.
 

@@ -1,0 +1,79 @@
+---
+- name: Install dependencies for CrowdSec repository (Debian)
+  ansible.builtin.apt:
+    name:
+      - curl
+      - gnupg
+      - apt-transport-https
+    state: present
+    update_cache: true
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Create keyring directory for CrowdSec (Debian)
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: "0755"
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Add GPG key for CrowdSec repository (Debian)
+  ansible.builtin.get_url:
+    url: https://packagecloud.io/crowdsecurity/crowdsec/gpgkey
+    dest: /etc/apt/keyrings/crowdsec.asc
+    mode: "0644"
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Add CrowdSec repository (Debian)
+  ansible.builtin.apt_repository:
+    repo: >-
+      deb [signed-by=/etc/apt/keyrings/crowdsec.asc]
+      https://packagecloud.io/crowdsecurity/crowdsec/{{ ansible_facts['distribution'] | lower }}
+      {{ ansible_facts['distribution_release'] }}
+      main
+    state: present
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Add CrowdSec repository (RedHat)
+  ansible.builtin.yum_repository:
+    name: crowdsec
+    description: CrowdSec repository
+    baseurl: >-
+      https://packagecloud.io/crowdsecurity/crowdsec/el/{{
+      ansible_facts['distribution_major_version'] }}/$basearch
+    gpgkey: https://packagecloud.io/crowdsecurity/crowdsec/gpgkey
+    gpgcheck: true
+    repo_gpgcheck: false
+    sslverify: true
+    sslcacert: /etc/pki/tls/certs/ca-bundle.crt
+    metadata_expire: "300"
+  when: ansible_facts['os_family'] == 'RedHat'
+
+- name: Install CrowdSec and Firewall Bouncer (Debian)
+  ansible.builtin.apt:
+    name:
+      - crowdsec
+      - crowdsec-firewall-bouncer-nftables
+    state: present
+    update_cache: true
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Install CrowdSec and Firewall Bouncer (RedHat)
+  ansible.builtin.dnf:
+    name:
+      - crowdsec
+      - crowdsec-firewall-bouncer-nftables
+    state: present
+    update_cache: true
+  when: ansible_facts['os_family'] == 'RedHat'
+
+- name: Start and enable CrowdSec service
+  ansible.builtin.service:
+    name: crowdsec
+    state: started
+    enabled: true
+
+- name: Start and enable CrowdSec Firewall Bouncer service
+  ansible.builtin.service:
+    name: crowdsec-firewall-bouncer
+    state: started
+    enabled: true

@@ -37,10 +37,9 @@
       ansible.builtin.include_role:
         name: devsec.hardening.ssh_hardening
 
-    - name: Setup Fail2Ban (only if ssh password authentication enabled)
+    - name: Setup CrowdSec
       ansible.builtin.include_role:
-        name: fail2ban
-      when: enable_ssh_password | default(false) | bool
+        name: crowdsec
 
 - name: Homelab specific actions
   hosts: homelab
